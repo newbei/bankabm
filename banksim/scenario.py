@@ -1,5 +1,16 @@
 # coding: utf-8
 
+import os
+import sys
+import time
+
+p = '/mnt/nfsroot/hegang/code/ABM/CASES/bankabm'
+if os.path.exists(p):
+    sys.path.append(p)
+    print('sys.path.append', p)
+else:
+    print('not append')
+
 import itertools
 import concurrent.futures
 
@@ -20,19 +31,23 @@ logger = get_logger("scenario")
 
 def exec_banksim_model(model_params):
     model = BankSim(**model_params)
+    start = time.time()
     model.run_model(step_count=240)
+    end = time.time()
+    print('exec_banksim_model cost ', end - start,' secs')
     return True
 
 
 def main(rep_count=1):
     init_database()
-
     for i in range(rep_count):
+
+        logger.info(f'repcount : {i}')
         model_params = {"init_db": False,
                         "write_db": True,
                         "max_steps": 240,
                         "initial_saver": 10000,
-                        "initial_bank": 2,
+                        "initial_bank": 10,
                         "initial_loan": 20000,
                         "initial_equity": 100,
                         "rfree": 0.01
@@ -48,7 +63,7 @@ def main(rep_count=1):
         for x in combination_car_res:
             model_params["car"] = x[0]
             model_params["min_reserves_ratio"] = x[1]
-            model_params["random_state"] = rep_count + 3000
+            model_params["random_state"] = i + 3000
             lst_model_params.append(model_params.copy())
         with concurrent.futures.ProcessPoolExecutor(max_workers=1) as executor:
             model_finish_cnt = 0
@@ -57,6 +72,7 @@ def main(rep_count=1):
                     model_finish_cnt = model_finish_cnt + 1
                     if model_finish_cnt % 10 == 0:
                         logger.info('Number of completed scenario: %3d', model_finish_cnt)
+    logger.info('finished')
 
 
 # Bank status
@@ -66,4 +82,7 @@ def main(rep_count=1):
 
 
 if __name__ == "__main__":
+    start = time.time()
     main(rep_count=2)
+    end = time.time()
+    print('total cost ', end - start, ' secs')

@@ -54,6 +54,7 @@ class BankSim(Model):
     def __init__(self, **params):
         np.random.seed(params["random_state"])
         random.seed(params["random_state"])
+        self.random_state = params["random_state"]
         super().__init__()
         config = configparser.ConfigParser()
         config.read("conf/config.ini")
@@ -101,7 +102,7 @@ class BankSim(Model):
                 title = "CAR {0:f}, Reserves Ratio {1:f}".format(
                     self.car, self.min_reserves_ratio
                 )
-                task = (self.simid, title, datetime.now(timezone.utc))
+                task = (self.simid, title, datetime.now(timezone.utc), self.random_state)
                 insert_simulation_table(self.db_cursor, task)
 
             for i in range(self.initial_bank):

@@ -33,6 +33,7 @@ CREATE TABLE [Simulation]
 	[SimId] INTEGER NOT NULL,
 	[Title] NVARCHAR(200) NOT NULL,
 	[SimDate] DATETIME NOT NULL,
+	[RandomState] INTEGER NOT NULL,
 	CONSTRAINT [PK_Simulation] PRIMARY KEY ([SimId])
 );
 
