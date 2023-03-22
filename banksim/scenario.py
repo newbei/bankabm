@@ -9,9 +9,7 @@ from banksim.util.write_sqlitedb import init_database
 from banksim.agent.bank import Bank
 
 import random
-random.seed(1)
 import numpy as np
-np.random.seed(1)
 
 # To replicate the simulation result in this paper (ABBA: An Agent-Based Model of the Banking System - IMF)
 #
@@ -22,7 +20,7 @@ logger = get_logger("scenario")
 
 def exec_banksim_model(model_params):
     model = BankSim(**model_params)
-    model.run_model(step_count=2)
+    model.run_model(step_count=240)
     return True
 
 
@@ -32,7 +30,7 @@ def main(rep_count=1):
     for i in range(rep_count):
         model_params = {"init_db": False,
                         "write_db": True,
-                        "max_steps": 2,
+                        "max_steps": 240,
                         "initial_saver": 10000,
                         "initial_bank": 2,
                         "initial_loan": 20000,
@@ -40,14 +38,17 @@ def main(rep_count=1):
                         "rfree": 0.01
                         }
 
-        lst_capital_req = [0.04, 0.08, 0.12, 0.16]
-        lst_reserve_ratio = [0.03, 0.045, 0.06]
+        # lst_capital_req = [0.04, 0.08, 0.12, 0.16]
+        lst_capital_req = [0.04, 0.08]
+        # lst_reserve_ratio = [0.03, 0.045, 0.06]
+        lst_reserve_ratio = [0.03]
         combination_car_res = list(itertools.product(lst_capital_req, lst_reserve_ratio))
 
         lst_model_params = list()
         for x in combination_car_res:
             model_params["car"] = x[0]
             model_params["min_reserves_ratio"] = x[1]
+            model_params["random_state"] = rep_count + 3000
             lst_model_params.append(model_params.copy())
         with concurrent.futures.ProcessPoolExecutor(max_workers=1) as executor:
             model_finish_cnt = 0
@@ -65,4 +66,4 @@ def main(rep_count=1):
 
 
 if __name__ == "__main__":
-    main(rep_count=1)
+    main(rep_count=2)

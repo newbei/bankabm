@@ -30,6 +30,9 @@ class Saver(Agent):
         self.region_id = None
         self.saver_last_color = None
 
+        # used for saver withdraw
+        self.withdraw_probs = []
+
     @property
     def balance(self):
         return self.__balance

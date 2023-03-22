@@ -7,6 +7,7 @@ import traceback, random
 import sqlite3
 import networkx as nx
 import configparser
+import numpy as np
 
 from banksim.logger import get_logger
 from banksim.agent.saver import Saver
@@ -51,6 +52,8 @@ class BankSim(Model):
     lst_ibloan = list()
 
     def __init__(self, **params):
+        np.random.seed(params["random_state"])
+        random.seed(params["random_state"])
         super().__init__()
         config = configparser.ConfigParser()
         config.read("conf/config.ini")
@@ -69,7 +72,7 @@ class BankSim(Model):
         self.initial_bank = params["initial_bank"]
         self.rfree = params["rfree"]
         self.reserve_rates = (
-            params["rfree"] / 2.0
+                params["rfree"] / 2.0
         )  # set reserve rates one half of risk free rate
         self.libor_rate = params["rfree"]
         self.bankrupt_liquidation = (
@@ -128,6 +131,7 @@ class BankSim(Model):
                         "exitprob_upperbound": 0.06,
                     }
                 )
+                saver.withdraw_probs = np.random.random(self.max_steps + 10)
                 self.grid.place_agent(saver, random.choice(list(self.G.nodes)))
                 self.schedule.add(saver)
 
@@ -147,6 +151,7 @@ class BankSim(Model):
                         "firesale_upper": 0.1,
                     }
                 )
+                loan.default_rates = np.random.random(self.max_steps + 10)
                 bank_id = random.choice(list(self.G.nodes))
                 loan.bank_id = bank_id
                 self.grid.place_agent(loan, bank_id)  # Evenly distributed
@@ -200,8 +205,10 @@ class BankSim(Model):
 
         if self.is_write_db:
             # Insert agent variables of current step into SQLITEDB
-            insert_agtsaver_table(self.db_cursor, self.simid, self.schedule.steps,[x for x in self.schedule.agents if isinstance(x, Saver)])
-            insert_agtloan_table(self.db_cursor, self.simid, self.schedule.steps, [x for x in self.schedule.agents if isinstance(x, Loan)])
+            insert_agtsaver_table(self.db_cursor, self.simid, self.schedule.steps,
+                                  [x for x in self.schedule.agents if isinstance(x, Saver)])
+            insert_agtloan_table(self.db_cursor, self.simid, self.schedule.steps,
+                                 [x for x in self.schedule.agents if isinstance(x, Loan)])
             # # It needs to log before the 2nd round effect begin because the function initializes
             insert_agtbank_table(
                 self.db_cursor,
@@ -241,14 +248,14 @@ class BankSim(Model):
                 error = traceback.format_exc()
                 logger.error(error)
             if (
-                len(
-                    [
-                        x
-                        for x in self.schedule.agents
-                        if isinstance(x, Bank) and x.bank_solvent
-                    ]
-                )
-                == 0
+                    len(
+                        [
+                            x
+                            for x in self.schedule.agents
+                            if isinstance(x, Bank) and x.bank_solvent
+                        ]
+                    )
+                    == 0
             ):
                 logger.info("All banks are bankrupt!")
                 break

@@ -51,6 +51,9 @@ class Loan(Agent):
         # used to create visual effects
         self.loan_last_color = None
 
+        # used to check default
+        self.default_rates = []
+
     @property
     def pdef(self):
         return self.__pdef

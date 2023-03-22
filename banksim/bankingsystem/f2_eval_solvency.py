@@ -12,7 +12,7 @@ def calculate_credit_loss_loan_book(schedule, solvent_bank):
     loans_with_bank = [x for x in schedule.agents if isinstance(x, Loan) and x.pos == solvent_bank.pos and
                        x.loan_approved and x.loan_solvent]
     for loan in loans_with_bank:
-        if loan.pdef > random.random():
+        if loan.pdef > loan.default_rates[schedule.steps]:
             loan.loan_solvent = False
             # TO DO: change color to magenta
         loan.rwamount = loan.rweight * loan.amount

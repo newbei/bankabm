@@ -16,7 +16,7 @@ def process_deposit_withdrawal(schedule):
                   x.saver_solvent and x.owns_account]
         logging.debug('process_deposit_withdrawal- num savers: %d of bank %d', len(savers), solvent_bank.pos)
         for saver in savers:
-            if random.random() < saver.withdraw_prob:
+            if random.random() < saver.withdraw_probs[schedule.steps]:
                 saver.bank_id = 9999
                 saver.owns_account = False
                 # TO DO: saver.saver_last_color = color
@@ -78,8 +78,8 @@ def process_access_interbank_market(schedule, car, min_reserves_ratio, bank):
         liq_bank.calculate_reserve_ratio()
 
         ibloan = Ibloan({"unique_id": schedule.model.next_id(),
-                        "model": schedule.model,
-                        "libor_rate": schedule.model.libor_rate})
+                         "model": schedule.model,
+                         "libor_rate": schedule.model.libor_rate})
         ibloan.ib_creditor = liq_bank
         ibloan.ib_amount = liquidity_contribution
         ibloan.ib_debtor = bank
