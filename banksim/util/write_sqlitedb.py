@@ -13,7 +13,7 @@ def insert_simulation_table(cursor, task):
     :return:
     """
 
-    sql = '''INSERT INTO Simulation(simid,title,simdate,randomstate) VALUES(?,?,?,?)'''
+    sql = '''INSERT INTO Simulation(simid,title,simdate,randomstate,remark) VALUES(?,?,?,?,?)'''
     cursor.execute(sql, task)
     return cursor.lastrowid
 

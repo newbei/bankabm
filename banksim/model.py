@@ -81,7 +81,7 @@ class BankSim(Model):
             1  # 1: it is fire sale of assets, 0: bank liquidates loans at face value
         )
         self.car = params["car"]
-        self.random_car_list = random_car_list(self.car, self.max_steps)
+        self.random_car_list = random_car_list(self.car, self.max_steps, params['car_add'])
         self.min_reserves_ratio = params["min_reserves_ratio"]
         self.initial_equity = params["initial_equity"]
         self.G = nx.empty_graph(self.initial_bank)
@@ -105,7 +105,7 @@ class BankSim(Model):
                 title = "CAR {0:f}, Reserves Ratio {1:f}".format(
                     self.car, self.min_reserves_ratio
                 )
-                task = (self.simid, title, datetime.now(timezone.utc), self.random_state)
+                task = (self.simid, title, datetime.now(timezone.utc), self.random_state, str(self.random_car_list))
                 insert_simulation_table(self.db_cursor, task)
 
             for i in range(self.initial_bank):
