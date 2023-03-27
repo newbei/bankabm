@@ -83,6 +83,6 @@ def main(rep_count=1):
 
 if __name__ == "__main__":
     start = time.time()
-    main(rep_count=2)
+    main(rep_count=1)
     end = time.time()
     print('total cost ', end - start, ' secs')
