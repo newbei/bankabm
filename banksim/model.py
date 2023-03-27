@@ -27,6 +27,7 @@ from banksim.bankingsystem.f7_eval_liquidity import main_evaluate_liquidity
 from banksim.util.write_agent_activity import main_write_bank_ratios
 from banksim.util.write_agent_activity import convert_result2dataframe
 from banksim.util.write_agent_activity import main_write_interbank_links
+from banksim.util.random_util import random_car_list
 from banksim.util.write_sqlitedb import (
     insert_simulation_table,
     insert_agtbank_table,
@@ -80,6 +81,7 @@ class BankSim(Model):
             1  # 1: it is fire sale of assets, 0: bank liquidates loans at face value
         )
         self.car = params["car"]
+        self.random_car_list = random_car_list(self.car, self.max_steps)
         self.min_reserves_ratio = params["min_reserves_ratio"]
         self.initial_equity = params["initial_equity"]
         self.G = nx.empty_graph(self.initial_bank)
@@ -89,6 +91,7 @@ class BankSim(Model):
         print(f"max step: {self.max_steps}")
 
     def step(self):
+        self.car = self.random_car_list[self.schedule.steps]
         if self.schedule.steps == 0:
 
             if self.is_init_db:
