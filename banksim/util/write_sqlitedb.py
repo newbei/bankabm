@@ -2,7 +2,7 @@ import os
 import sqlite3
 import zipfile
 import configparser
-from datetime import datetime,timezone
+from datetime import datetime, timezone
 
 
 def insert_simulation_table(cursor, task):
@@ -34,13 +34,20 @@ def insert_agtbank_table(cursor, simid, numstep, banks):
     ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
     col_date = datetime.now(timezone.utc)
 
-    for bank in banks:
-        bank_vars = bank.get_all_variables()
-        bank_vars[0] = int(str(10000+numstep)+str(10000+bank_vars[3])) # AgtBankId
-        bank_vars[1] = simid
-        bank_vars[2] = numstep
-        bank_vars[32] = col_date
-        cursor.execute(sql, tuple(bank_vars))
+    tmp_banks = [bank.get_all_variables() for bank in banks]
+    for tmp_bank in tmp_banks:
+        tmp_bank[0] = int(str(10000 + numstep) + str(10000 + tmp_bank[3]))  # AgtBankId
+        tmp_bank[1] = simid
+        tmp_bank[2] = numstep
+        tmp_bank[32] = col_date
+    # for bank in banks:
+    #     bank_vars = bank.get_all_variables()
+    #     bank_vars[0] = int(str(10000 + numstep) + str(10000 + bank_vars[3]))  # AgtBankId
+    #     bank_vars[1] = simid
+    #     bank_vars[2] = numstep
+    #     bank_vars[32] = col_date
+    #     # cursor.execute(sql, tuple(bank_vars))
+    cursor.executemany(sql, tmp_banks)
 
     return cursor.lastrowid
 
@@ -58,13 +65,13 @@ def insert_agtsaver_table(cursor, simid, numstep, savers):
     SaverRegionId,SaverOwnAccount,SaverSolvent,SaverExit,SaverCurrent,SaverStepDate) Values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
 
     col_date = datetime.now(timezone.utc)
-    for saver in savers:
-        saver_vars = saver.get_all_variables()
-        saver_vars[0] = int(str(10000+numstep)+str(10000+saver_vars[3])) # AgtSaverId
-        saver_vars[1] = simid
-        saver_vars[2] = numstep
-        saver_vars[13] = col_date
-        cursor.execute(sql,tuple(saver_vars))
+    tmp_savers = [saver.get_all_variables() for saver in savers]
+    for tmp_saver in tmp_savers:
+        tmp_saver[0] = int(str(10000 + numstep) + str(10000 + tmp_saver[3]))  # AgtSaverId
+        tmp_saver[1] = simid
+        tmp_saver[2] = numstep
+        tmp_saver[13] = col_date
+    cursor.executemany(sql, tmp_savers)
 
     return cursor.lastrowid
 
@@ -85,13 +92,13 @@ def insert_agtloan_table(cursor, simid, numstep, loans):
     Values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
 
     col_date = datetime.now(timezone.utc)
-    for loan in loans:
-        loan_vars = loan.get_all_variables()
-        loan_vars[0] = int(str(10000 + numstep) + str(10000 + loan_vars[3]))  # AgtloanId
-        loan_vars[1] = simid
-        loan_vars[2] = numstep
-        loan_vars[-1] = col_date
-        cursor.execute(sql, tuple(loan_vars))
+    tmp_loans = [loan.get_all_variables() for loan in loans]
+    for tmp_loan in tmp_loans:
+        tmp_loan[0] = int(str(10000 + numstep) + str(10000 + tmp_loan[3]))  # AgtloanId
+        tmp_loan[1] = simid
+        tmp_loan[2] = numstep
+        tmp_loan[-1] = col_date
+    cursor.executemany(sql, tmp_loans)
 
     return cursor.lastrowid
 
@@ -110,13 +117,13 @@ def insert_agtibloan_table(cursor, simid, numstep, ibloans):
     IbLoanDebtor,IbLoanStepDate) Values(?,?,?,?,?,?,?,?,?)'''
 
     col_date = datetime.now(timezone.utc)
-    for loan in ibloans:
-        loan_vars = loan.get_all_variables()
-        loan_vars[0] = int(str(10000 + numstep) + str(10000 + loan_vars[3]))  # AgtloanId
-        loan_vars[1] = simid
-        loan_vars[2] = numstep
-        loan_vars[-1] = col_date
-        cursor.execute(sql, tuple(loan_vars))
+    tmp_loans = [loan.get_all_variables() for loan in ibloans]
+    for tmp_loan in tmp_loans:
+        tmp_loan[0] = int(str(10000 + numstep) + str(10000 + tmp_loan[3]))  # AgtloanId
+        tmp_loan[1] = simid
+        tmp_loan[2] = numstep
+        tmp_loan[-1] = col_date
+    cursor.executemany(sql, tmp_loans)
 
     return cursor.lastrowid
 
