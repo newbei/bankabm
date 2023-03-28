@@ -58,15 +58,15 @@ def main(rep_count=1):
         lst_capital_req = [0.08]
         # lst_reserve_ratio = [0.03, 0.045, 0.06]
         lst_reserve_ratio = [0.03]
-        car_add_strategy = [0, 0.005, 0.01]
-        combination_car_res = list(itertools.product(lst_capital_req, lst_reserve_ratio, car_add_strategy))
+        add_strategy = [0, 0.005, 0.01]
+        combination_car_res = list(itertools.product(lst_capital_req, lst_reserve_ratio, add_strategy))
 
         lst_model_params = list()
         for x in combination_car_res:
             model_params["car"] = x[0]
             model_params["min_reserves_ratio"] = x[1]
             model_params["random_state"] = i + 3000
-            model_params["car_add"] = x[2]
+            model_params["add_strategy"] = x[2]
             lst_model_params.append(model_params.copy())
         with concurrent.futures.ProcessPoolExecutor(max_workers=1) as executor:
             model_finish_cnt = 0

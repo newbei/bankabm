@@ -16,6 +16,7 @@ from banksim.agent.loan import Loan
 from banksim.agent.ibloan import Ibloan
 from banksim.bankingsystem.f1_init_market import initialize_deposit_base
 from banksim.bankingsystem.f1_init_market import initialize_loan_book
+from banksim.bankingsystem.f1_1_update_bank_car import update_car
 from banksim.bankingsystem.f2_eval_solvency import main_evaluate_solvency
 from banksim.bankingsystem.f3_second_round_effect import main_second_round_effects
 from banksim.bankingsystem.f4_optimize_risk_weight import main_risk_weight_optimization
@@ -27,7 +28,7 @@ from banksim.bankingsystem.f7_eval_liquidity import main_evaluate_liquidity
 from banksim.util.write_agent_activity import main_write_bank_ratios
 from banksim.util.write_agent_activity import convert_result2dataframe
 from banksim.util.write_agent_activity import main_write_interbank_links
-from banksim.util.random_util import random_car_list
+from banksim.util.random_util import random_car_list, random_mrr_list
 from banksim.util.write_sqlitedb import (
     insert_simulation_table,
     insert_agtbank_table,
@@ -81,8 +82,10 @@ class BankSim(Model):
             1  # 1: it is fire sale of assets, 0: bank liquidates loans at face value
         )
         self.car = params["car"]
-        self.random_car_list = random_car_list(self.car, self.max_steps, params['car_add'])
+        self.random_car_list = random_car_list(self.car, self.max_steps, 0)
         self.min_reserves_ratio = params["min_reserves_ratio"]
+        self.random_mrr_list = random_mrr_list(self.min_reserves_ratio, self.max_steps, params['add_strategy'])
+
         self.initial_equity = params["initial_equity"]
         self.G = nx.empty_graph(self.initial_bank)
         self.grid = NetworkGrid(self.G)
@@ -91,7 +94,8 @@ class BankSim(Model):
         print(f"max step: {self.max_steps}")
 
     def step(self):
-        self.car = self.random_car_list[self.schedule.steps]
+        # self.car = self.random_car_list[self.schedule.steps]
+        self.min_reserves_ratio = self.random_mrr_list[self.schedule.steps]
         if self.schedule.steps == 0:
 
             if self.is_init_db:
@@ -105,7 +109,7 @@ class BankSim(Model):
                 title = "CAR {0:f}, Reserves Ratio {1:f}".format(
                     self.car, self.min_reserves_ratio
                 )
-                task = (self.simid, title, datetime.now(timezone.utc), self.random_state, str(self.random_car_list))
+                task = (self.simid, title, datetime.now(timezone.utc), self.random_state, str(self.random_mrr_list))
                 insert_simulation_table(self.db_cursor, task)
 
             for i in range(self.initial_bank):
@@ -169,6 +173,8 @@ class BankSim(Model):
 
         if self.schedule.steps == self.max_steps:
             self.running = False
+
+        update_car(self.schedule, self.car)
 
         # evaluate solvency of banks after loans experience default
         main_evaluate_solvency(
