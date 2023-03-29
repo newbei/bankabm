@@ -16,7 +16,7 @@ def process_deposit_withdrawal(schedule):
                   x.saver_solvent and x.owns_account]
         logging.debug('process_deposit_withdrawal- num savers: %d of bank %d', len(savers), solvent_bank.pos)
         for saver in savers:
-            if random.random() < saver.withdraw_probs[schedule.steps]:
+            if saver.withdraw_prob > saver.withdraw_probs[schedule.steps]:
                 saver.bank_id = 9999
                 saver.owns_account = False
                 # TO DO: saver.saver_last_color = color

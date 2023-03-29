@@ -117,7 +117,7 @@ class BankSim(Model):
                     {
                         "unique_id": self.next_id(),
                         "model": self,
-                        "equity": 100,
+                        "equity": self.initial_equity,
                         "rfree": self.rfree,
                         "car": self.car,
                         "buffer_reserves_ratio": 1.5,
@@ -154,7 +154,7 @@ class BankSim(Model):
                         "loan_approved": False,
                         "loan_dumped": False,
                         "loan_liquidated": False,
-                        "pdf_upper": 0.1,
+                        "pdf_upper": 0.2,
                         "rcvry_rate": 0.4,
                         "firesale_upper": 0.1,
                     }
