@@ -14,6 +14,7 @@ from banksim.agent.saver import Saver
 from banksim.agent.bank import Bank
 from banksim.agent.loan import Loan
 from banksim.agent.ibloan import Ibloan
+from banksim.bankingsystem.f1_1_update_bank_car import reset_before_step
 from banksim.bankingsystem.f1_init_market import initialize_deposit_base
 from banksim.bankingsystem.f1_init_market import initialize_loan_book
 from banksim.bankingsystem.f1_1_update_bank_car import update_car
@@ -175,6 +176,7 @@ class BankSim(Model):
             self.running = False
 
         update_car(self.schedule, self.car)
+        reset_before_step(self.schedule)
 
         # evaluate solvency of banks after loans experience default
         main_evaluate_solvency(

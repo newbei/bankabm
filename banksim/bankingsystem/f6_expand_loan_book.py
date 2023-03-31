@@ -9,6 +9,7 @@ def main_reset_insolvent_loans(schedule):
         # TO DO: set color 107
 
 
+
 def main_build_loan_book_locally(schedule, min_reserves_ratio, car):
     for solvent_bank in [x for x in schedule.agents if isinstance(x, Bank) and x.bank_capitalized]:
         desired_reserves_ratio = min_reserves_ratio * solvent_bank.buffer_reserves_ratio
@@ -35,6 +36,7 @@ def main_build_loan_book_locally(schedule, min_reserves_ratio, car):
                 interim_loans = interim_loans + avail_loan.amount
                 interim_provisions = interim_provisions + avail_loan.pdef * avail_loan.lgdamount
                 avail_loan.loan_approved = True
+                solvent_bank.approved_loans = solvent_bank.approved_loans + 1
                 # TO DO: change color yellow
         solvent_bank.rwassets = interim_rwa
         solvent_bank.bank_reserves = interim_reserves
@@ -92,6 +94,7 @@ def main_build_loan_book_globally(schedule, car, min_reserves_ratio):
                 avail_loan.loan_approved = True
                 avail_loan.bank_id = solvent_bank.pos
                 avail_loan.pos = solvent_bank.pos
+                solvent_bank.approved_loans = solvent_bank.approved_loans + 1
 
                 # TO DO: change color yellow
         solvent_bank.rwassets = interim_rwa

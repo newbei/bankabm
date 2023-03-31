@@ -6,6 +6,11 @@ from banksim.agent.saver import Saver
 
 
 def main_risk_weight_optimization(schedule, car):
+    # init deposit_optimize = 0
+    for bank in [x for x in schedule.agents if isinstance(x, Bank)]:
+        bank.deposit_optimize = 0
+        bank.optimized_loans = 0
+
     for uncap_bank in [x for x in schedule.agents if
                        isinstance(x, Bank) and not x.bank_capitalized and x.bank_solvent]:
         interim_equity = uncap_bank.equity
@@ -21,7 +26,8 @@ def main_risk_weight_optimization(schedule, car):
         current_rwassets = uncap_bank.rwassets
         n_dumped_loans = 0
 
-        for loan in [x for x in schedule.agents if isinstance(x, Loan) and x.pos == uncap_bank.pos and x.loan_approved and x.loan_solvent]:
+        for loan in [x for x in schedule.agents if
+                     isinstance(x, Loan) and x.pos == uncap_bank.pos and x.loan_approved and x.loan_solvent]:
             loan_equity = interim_equity - loan.amount * loan.fire_sale_loss + loan.pdef * loan.lgdamount
             loan_rwassets = interim_rwassets - loan.rwamount
             loan_capital_ratio = loan_equity / loan_rwassets if loan_rwassets != 0 else 0
@@ -73,15 +79,18 @@ def main_risk_weight_optimization(schedule, car):
             # TO DO: colour Green
             uncap_bank.bank_capitalized = True
 
+        uncap_bank.optimized_loans = n_dumped_loans
         savers_in_bank = [x for x in schedule.agents if isinstance(x, Saver) and
                           x.pos == uncap_bank.pos and x.owns_account]
         if n_dumped_loans < len(savers_in_bank):
             for saver in random.sample(savers_in_bank, n_dumped_loans):
                 saver.owns_account = False
                 # TO DO: colour White
+            uncap_bank.deposit_optimize = n_dumped_loans
         else:
             for saver in savers_in_bank:
                 saver.owns_account = False
                 # TO DO: colour White
+            uncap_bank.deposit_optimize = len(savers_in_bank)
             uncap_bank.equity = uncap_bank.equity - (n_dumped_loans - len(savers_in_bank))
         uncap_bank.bank_deposits = sum([x.balance for x in savers_in_bank if x.owns_account])

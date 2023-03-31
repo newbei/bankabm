@@ -73,6 +73,9 @@ CREATE TABLE [AgtBank]
 	[BankCreditFailure] INTEGER NOT NULL,	-- 1: TRUE, 0: False, credit_failure = None  # credit failure
 	[BankLiquidityFailure] INTEGER NOT NULL,-- 1: TRUE, 0: False, liquidity_failure = None  # liquidity failure
 	[BankStepDate] DATETIME NOT NULL,
+	[BankDepositOptimize] INTEGER NOT NULL,
+	[BankOptimizedLoan] REAL,
+	[BankApprovedLoan] REAL,
 	CONSTRAINT [PK_AgtBank] PRIMARY KEY ([AgtBankId],[SimId]),
 	FOREIGN KEY ([SimId]) REFERENCES [Simulation] ([SimId])
 				ON DELETE NO ACTION ON UPDATE NO ACTION

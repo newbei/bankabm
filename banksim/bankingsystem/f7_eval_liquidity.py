@@ -52,10 +52,6 @@ def process_deposit_flow_rebalancing(schedule):
         solvent_bank.calculate_reserve()
         solvent_bank.calculate_reserve_ratio()
         solvent_bank.calculate_total_assets()
-        solvent_bank.deposit_inflow = 0
-        solvent_bank.deposit_outflow = 0
-        solvent_bank.net_deposit_flow = 0
-
 
 def process_access_interbank_market(schedule, car, min_reserves_ratio, bank):
     liq_banks = [x for x in schedule.agents if isinstance(x, Bank) and x.capital_ratio >= car and

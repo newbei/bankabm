@@ -32,7 +32,7 @@ logger = get_logger("scenario")
 def exec_banksim_model(model_params):
     model = BankSim(**model_params)
     start = time.time()
-    model.run_model(step_count=240)
+    model.run_model(step_count=model_params['max_steps'])
     end = time.time()
     print('exec_banksim_model cost ', end - start, ' secs')
     return True
@@ -45,7 +45,7 @@ def main(rep_count=1):
         logger.info(f'repcount : {i}')
         model_params = {"init_db": False,
                         "write_db": True,
-                        "max_steps": 240,
+                        "max_steps": 240,  # 240
                         "initial_saver": 10000,
                         "initial_bank": 10,
                         "initial_loan": 20000,

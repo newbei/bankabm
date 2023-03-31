@@ -9,10 +9,10 @@ class Bank(Agent):
 
     def __init__(self, params):
         super().__init__(params.get("unique_id"), params.get("model"))
-        self.equity = params.get("equity") # equity (capital) of the bank
-        self.bank_deposits = 0 # deposits raised by bank
-        self.bank_loans = 0 # amount total loans made by bank
-        self.bank_reserves = 0 # equity + deposit // todo  liquid bank-reserves
+        self.equity = params.get("equity")  # equity (capital) of the bank
+        self.bank_deposits = 0  # deposits raised by bank
+        self.bank_loans = 0  # amount total loans made by bank
+        self.bank_reserves = 0  # equity + deposit // todo  liquid bank-reserves
         self.total_assets = None  # bank_loans + bank_reserves
 
         self.bank_provisions = None  # provisions against expected losses
@@ -20,15 +20,15 @@ class Bank(Agent):
 
         self.rdeposits = params.get("rfree")  # assumes deposits are risk free // todo 多了假设
 
-        self.ib_credits = 0 # interbank loans to other banks
-        self.ib_debits = 0 # interbank loans from other banks
+        self.ib_credits = 0  # interbank loans to other banks
+        self.ib_debits = 0  # interbank loans from other banks
 
-        self.net_interest_income = 0 # net interest income, balance sheet
-        self.interest_income = 0 # interest income, loans
-        self.interest_expense = 0 # interest expense, depositors
-        self.ib_interest_income = None # interest income, interbank
-        self.ib_interest_expense = None # interest expense, interbank
-        self.ib_net_interest_income = None # net interest, interbank
+        self.net_interest_income = 0  # net interest income, balance sheet
+        self.interest_income = 0  # interest income, loans
+        self.interest_expense = 0  # interest expense, depositors
+        self.ib_interest_income = None  # interest income, interbank
+        self.ib_interest_expense = None  # interest expense, interbank
+        self.ib_net_interest_income = None  # net interest, interbank
         self.ib_credit_loss = None  # credit losses, interbank exposures
 
         self.capital_ratio = None  # capital to risk_weighted assets
@@ -36,8 +36,8 @@ class Bank(Agent):
         self.rwassets = None  # risk_weighted assets
         self.leverage_ratio = None  # leverage ratio = equity / total_assets
 
-        self.bank_dividend = 0 # dividends
-        self.bank_cum_dividend = 0 # cumulative dividends
+        self.bank_dividend = 0  # dividends
+        self.bank_cum_dividend = 0  # cumulative dividends
 
         ''' 注释不同
                           ;; upper-bound of capital ratio
@@ -52,19 +52,20 @@ class Bank(Agent):
         '''
         self.buffer_reserves_ratio = params.get("buffer_reserves_ratio")  # desired buffer or markup over
 
-        self.deposit_outflow = 0 # deposit withdrawal shock
-        self.deposit_inflow = 0 # deposit inflow from other banks
-        self.net_deposit_flow = 0 # net deposit flow
+        self.deposit_optimize = 0  # deposit release in risk weight optimization
+        self.deposit_outflow = 0  # deposit withdrawal shock
+        self.deposit_inflow = 0  # deposit inflow from other banks
+        self.net_deposit_flow = 0  # net deposit flow
 
+        self.bank_solvent = True  # bank solvent?
+        self.bank_capitalized = True  # bank capitalized?
+        self.defaulted_loans = 0  # amount of defaulted loans
+        self.optimized_loans = 0  # amount of optimized loans
+        self.approved_loans = 0  # amount of optimized loans
 
-        self.bank_solvent = True # bank solvent?
-        self.bank_capitalized = True # bank capitalized?
-        self.defaulted_loans = 0 # amount of defaulted loans
-
-        self.credit_failure = False # credit failure
-        self.liquidity_failure = False # liquidity failure
-        self.assets_liabilities = None # control variable
-
+        self.credit_failure = False  # credit failure
+        self.liquidity_failure = False  # liquidity failure
+        self.assets_liabilities = None  # control variable
 
         self.ib_credits_4log = 0
         self.ib_debits_4log = 0
@@ -77,13 +78,13 @@ class Bank(Agent):
         self.total_assets = self.bank_reserves + self.bank_loans
 
     def calculate_leverage_ratio(self):
-        self.leverage_ratio = self.equity / self.total_assets if self.total_assets !=0 else 0
+        self.leverage_ratio = self.equity / self.total_assets if self.total_assets != 0 else 0
 
     def calculate_capital_ratio(self):
-        self.capital_ratio = self.equity / self.rwassets if self.rwassets !=0 else 0
+        self.capital_ratio = self.equity / self.rwassets if self.rwassets != 0 else 0
 
     def calculate_reserve_ratio(self):
-        self.reserves_ratio = self.bank_reserves / self.bank_deposits if self.bank_deposits !=0 else 0
+        self.reserves_ratio = self.bank_reserves / self.bank_deposits if self.bank_deposits != 0 else 0
 
     def calculate_reserve(self):
         self.bank_reserves = self.bank_reserves + self.net_deposit_flow
@@ -92,7 +93,6 @@ class Bank(Agent):
         self.bank_deposits = self.bank_deposits + self.net_deposit_flow
 
     def initialize_ib_variables(self):
-
         self.ib_credits_4log = self.ib_credits
         self.ib_debits_4log = self.ib_debits
         self.ib_interest_income_4log = self.ib_interest_income
@@ -428,10 +428,10 @@ class Bank(Agent):
         self.__ib_credit_loss_4log = ib_credit_loss_4log
 
     def get_all_variables(self):
-        res =[
-            '', # AgtBankId
-            '', # SimId
-            '', # StepCnt
+        res = [
+            '',  # AgtBankId
+            '',  # SimId
+            '',  # StepCnt
             self.unique_id,  # BankId
             self.equity,
             self.bank_deposits,
@@ -461,6 +461,9 @@ class Bank(Agent):
             self.bank_capitalized if self.bank_capitalized is None else int(self.bank_capitalized),
             self.credit_failure if self.credit_failure is None else int(self.credit_failure),
             self.liquidity_failure if self.liquidity_failure is None else int(self.liquidity_failure),
-            '' # Datetime
+            '',  # Datetime
+            self.deposit_optimize,
+            self.optimized_loans,
+            self.approved_loans,
         ]
         return res
