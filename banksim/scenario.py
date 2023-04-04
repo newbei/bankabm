@@ -18,6 +18,8 @@ from banksim.logger import get_logger
 from banksim.model import BankSim
 from banksim.util.write_sqlitedb import init_database
 from banksim.agent.bank import Bank
+from banksim.intervention.f2loan import F2LoanIntervention
+from banksim.intervention.base import Intervention, InterventionInstance
 
 import random
 import numpy as np
@@ -45,7 +47,7 @@ def main(rep_count=1):
         logger.info(f'repcount : {i}')
         model_params = {"init_db": False,
                         "write_db": True,
-                        "max_steps": 240,  # 240
+                        "max_steps": 5,  # 240
                         "initial_saver": 10000,
                         "initial_bank": 10,
                         "initial_loan": 20000,
@@ -57,9 +59,15 @@ def main(rep_count=1):
         # lst_capital_req = [0.04, 0.08]
         lst_capital_req = [0.08]
         # lst_reserve_ratio = [0.03, 0.045, 0.06]
-        lst_reserve_ratio = [0.03]
-        add_strategy = [0, 0.005, 0.01]
-        combination_car_res = list(itertools.product(lst_capital_req, lst_reserve_ratio, add_strategy))
+        lst_reserve_ratio = [0.06]
+        add_strategy = [0]
+
+        combination_car_res = list(
+            itertools.product(lst_capital_req
+                              , lst_reserve_ratio
+                              , add_strategy
+                              , F2LoanIntervention(range(0, 2), step=4)()
+                              ))
 
         lst_model_params = list()
         for x in combination_car_res:
@@ -67,6 +75,9 @@ def main(rep_count=1):
             model_params["min_reserves_ratio"] = x[1]
             model_params["random_state"] = i + 3000
             model_params["add_strategy"] = x[2]
+            for intervention in x:
+                if isinstance(intervention, InterventionInstance):
+                    model_params[intervention.__class__.__name__] = intervention
             lst_model_params.append(model_params.copy())
         with concurrent.futures.ProcessPoolExecutor(max_workers=1) as executor:
             model_finish_cnt = 0

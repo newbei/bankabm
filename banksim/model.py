@@ -12,6 +12,7 @@ import numpy as np
 from banksim.logger import get_logger
 from banksim.agent.saver import Saver
 from banksim.agent.bank import Bank
+from banksim.agent.bankf2 import BankF2
 from banksim.agent.loan import Loan
 from banksim.agent.ibloan import Ibloan
 from banksim.bankingsystem.f1_1_update_bank_car import reset_before_step
@@ -33,11 +34,13 @@ from banksim.util.random_util import random_car_list, random_mrr_list
 from banksim.util.write_sqlitedb import (
     insert_simulation_table,
     insert_agtbank_table,
+    insert_agtbank_table_f2,
     init_database,
     insert_agtsaver_table,
     insert_agtloan_table,
     insert_agtibloan_table
 )
+from banksim.intervention.base import InterventionInstance
 
 logger = get_logger("model")
 
@@ -55,6 +58,7 @@ class BankSim(Model):
     lst_ibloan = list()
 
     def __init__(self, **params):
+
         np.random.seed(params["random_state"])
         random.seed(params["random_state"])
         self.random_state = params["random_state"]
@@ -92,7 +96,14 @@ class BankSim(Model):
         self.grid = NetworkGrid(self.G)
         self.schedule = RandomActivation(self)
         self.datacollector = DataCollector({"BankAsset": get_sum_totasset})
+
+
+        for key, value in params.items():
+            if isinstance(value, InterventionInstance):
+                setattr(self.schedule,value.__class__.__name__,value)
+
         print(f"max step: {self.max_steps}")
+
 
     def step(self):
         # self.car = self.random_car_list[self.schedule.steps]
@@ -124,6 +135,7 @@ class BankSim(Model):
                         "buffer_reserves_ratio": 1.5,
                     }
                 )
+                bank.bank_f2 = BankF2(bank.unique_id)
                 self.grid.place_agent(bank, i)
                 self.schedule.add(bank)
 
@@ -176,7 +188,7 @@ class BankSim(Model):
             self.running = False
 
         update_car(self.schedule, self.car)
-        reset_before_step(self.schedule)
+        reset_before_step(self.schedule, self.car)
 
         # evaluate solvency of banks after loans experience default
         main_evaluate_solvency(
@@ -228,6 +240,13 @@ class BankSim(Model):
                 self.schedule.steps,
                 [x for x in self.schedule.agents if isinstance(x, Bank)],
             )
+            insert_agtbank_table_f2(
+                self.db_cursor,
+                self.simid,
+                self.schedule.steps,
+                [x for x in self.schedule.agents if isinstance(x, Bank)],
+            )
+
             insert_agtibloan_table(self.db_cursor, self.simid, self.schedule.steps,
                                    [x for x in self.schedule.agents if isinstance(x, Ibloan)])
             self.conn.commit()

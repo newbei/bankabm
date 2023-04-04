@@ -18,6 +18,8 @@ DROP TABLE IF EXISTS [Simulation];
 
 DROP TABLE IF EXISTS [AgtBank];
 
+DROP TABLE IF EXISTS [AgtBank_F2];
+
 DROP TABLE IF EXISTS [AgtSaver];
 
 DROP TABLE IF EXISTS [AgtLoan];
@@ -79,6 +81,42 @@ CREATE TABLE [AgtBank]
 	CONSTRAINT [PK_AgtBank] PRIMARY KEY ([AgtBankId],[SimId]),
 	FOREIGN KEY ([SimId]) REFERENCES [Simulation] ([SimId])
 				ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+
+CREATE TABLE [AgtBank_F2]
+(
+	[AgtBankId] INTEGER NOT NULL,
+	[SimId] INTEGER NOT NULL,
+	[StepCnt] INTEGER NOT NULL,
+	[BankId] INTEGER NOT NULL,
+	[BankEquityT0] REAL  NULL, 	-- equity = None  # equity (capital) of the bank
+	[BankDepositT0] REAL  NULL, 	-- bank_deposits = None  # deposits raised by bank
+	[BankLoanT0] REAL  NULL, 		-- bank_loans = None  # amount total loans made by bank
+	[BankReserveT0] REAL  NULL,	-- bank_reserves = None  # liquid bank_reserves
+	[BankAssetT0] REAL  NULL,		-- total_assets = None  # bank_loans + bank_reserves
+	[BankProvisionT0] REAL,			-- bank_provisions = None  # provisions against expected losses
+	[BankRiskWgtAssetT0] REAL,			-- bank_provisions = None  # provisions against expected losses
+
+	[BankEquityF2] REAL  NULL, 	-- equity = None  # equity (capital) of the bank
+	[BankLoanF2] REAL  NULL, 		-- bank_loans = None  # amount total loans made by bank
+	[BankReserveF2] REAL  NULL,	-- bank_reserves = None  # liquid bank_reserves
+	[BankAssetF2] REAL  NULL,		-- total_assets = None  # bank_loans + bank_reserves
+	[BankProvisionF2] REAL,			-- bank_provisions = None  # provisions against expected losses
+
+	[BankNetInterestIncomeF2] REAL,	-- net_interest_income = None  # net interest income, balance sheet
+	[BankInterestIncomeF2] REAL, 		-- interest_income = None  # interest income, loans
+	[BankInterestExpenseF2] REAL,		-- interest_expense = None  # interest expense, depositors
+
+    [BankCapitalRatioF2] REAL,
+    [BankReservesRatioF2] REAL,
+	[BankRiskWgtAssetF2] REAL,		-- rwassets = None  # risk_weighted assets
+
+	[BankDefaultedLoanF2] REAL,		-- defaulted_loans = None  # amount of defaulted loans
+	[BankSolventF2] INTEGER  NULL,			-- 1: TRUE, 0: False, bank_solvent = None  # bank solvent
+	[BankCapitalizedF2] INTEGER  NULL,		-- 1: TRUE, 0: False, bank_capitalized = None  # bank capitalized
+	[BankCreditFailureF2] INTEGER  NULL,	-- 1: TRUE, 0: False, credit_failure = None  # credit failure
+	[RiskWgtAmountDefaultedF2] REAL  NULL,
+	[CAR] REAL  NULL
 );
 
 CREATE TABLE [AgtSaver]

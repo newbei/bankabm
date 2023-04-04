@@ -53,6 +53,33 @@ def insert_agtbank_table(cursor, simid, numstep, banks):
     return cursor.lastrowid
 
 
+def insert_agtbank_table_f2(cursor, simid, numstep, banks):
+    """
+
+    :param cursor:
+    :param banks:
+    :return:
+    """
+
+    sql = '''INSERT INTO AgtBank_F2
+    (AgtBankId, SimId, StepCnt, BankId, BankEquityT0, BankDepositT0, BankLoanT0, BankReserveT0, BankAssetT0,
+    BankProvisionT0, BankRiskWgtAssetT0, BankEquityF2, BankLoanF2, BankReserveF2, BankAssetF2, BankProvisionF2, 
+    BankNetInterestIncomeF2, BankInterestIncomeF2, BankInterestExpenseF2, BankCapitalRatioF2, BankReservesRatioF2, 
+    BankRiskWgtAssetF2, BankDefaultedLoanF2, BankSolventF2, BankCapitalizedF2, BankCreditFailureF2, RiskWgtAmountDefaultedF2,
+    CAR)
+    VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);'''
+    col_date = datetime.now(timezone.utc)
+
+    tmp_bank_f2s = [bank.bank_f2.get_all_variables() for bank in banks]
+    for tmp_bank_f2 in tmp_bank_f2s:
+        tmp_bank_f2[0] = int(str(10000 + numstep) + str(10000 + tmp_bank_f2[3]))  # AgtBankId
+        tmp_bank_f2[1] = simid
+        tmp_bank_f2[2] = numstep
+    cursor.executemany(sql, tmp_bank_f2s)
+
+    return cursor.lastrowid
+
+
 def insert_agtsaver_table(cursor, simid, numstep, savers):
     """
 

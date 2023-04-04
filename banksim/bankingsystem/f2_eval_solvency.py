@@ -7,6 +7,9 @@ from banksim.agent.bank import Bank
 from banksim.agent.loan import Loan
 from banksim.agent.saver import Saver
 
+from banksim.util.intervetion_util import do_intervention
+from banksim.intervention.f2loan import F2LoanIntervention
+
 
 def calculate_credit_loss_loan_book(schedule, solvent_bank):
     loans_with_bank = [x for x in schedule.agents if isinstance(x, Loan) and x.pos == solvent_bank.pos and
@@ -16,6 +19,8 @@ def calculate_credit_loss_loan_book(schedule, solvent_bank):
             loan.loan_solvent = False
             # TO DO: change color to magenta
         loan.rwamount = loan.rweight * loan.amount
+    do_intervention(schedule, F2LoanIntervention, bank=solvent_bank)
+
     loans_with_bank_default = [x for x in loans_with_bank if not x.loan_solvent]
     # notice that deposits do not change when loans are defaulting
     solvent_bank.rwassets = solvent_bank.rwassets - sum([x.rwamount for x in loans_with_bank_default])
@@ -33,10 +38,11 @@ def calculate_credit_loss_loan_book(schedule, solvent_bank):
          and x.pos == solvent_bank.pos and x.loan_approved and x.loan_solvent])
 
     change_in_provisions = solvent_bank.bank_new_provisions - solvent_bank.bank_provisions
-
     solvent_bank.bank_provisions = solvent_bank.bank_new_provisions
     solvent_bank.equity = solvent_bank.equity - change_in_provisions
     solvent_bank.bank_reserves = solvent_bank.bank_reserves + sum([x.loan_recovery for x in loans_with_bank_default])
+    solvent_bank.bank_f2.rw_wgt_defaulted_loans_f2 = sum(
+        [x.loan_recovery for x in loans_with_bank_default])  # f2 update
     solvent_bank.bank_reserves = solvent_bank.bank_reserves - change_in_provisions
     solvent_bank.bank_loans = solvent_bank.bank_loans - sum([x.amount for x in loans_with_bank_default])
     solvent_bank.defaulted_loans = solvent_bank.defaulted_loans + sum([x.amount for x in loans_with_bank_default])
@@ -97,7 +103,8 @@ def process_unwind_loans_insolvent_bank(schedule, bankrupt_liquidation, solvent_
             # TO DO: change color to BROWN
     # WHY it counts numbers of savers instead of balance sum???
     if 0 < recovered_funds < len(savers_with_insolvent_bank):
-        for saver in random.sample(savers_with_insolvent_bank, int(np.ceil(len(savers_with_insolvent_bank) - recovered_funds))):
+        for saver in random.sample(savers_with_insolvent_bank,
+                                   int(np.ceil(len(savers_with_insolvent_bank) - recovered_funds))):
             saver.saver_solvent = False
             saver.balance = 0
             # TO DO: change colour to brown
@@ -143,6 +150,7 @@ def main_evaluate_solvency(schedule, reserve_rates, bankrupt_liquidation, car):
             solvent_bank.bank_capitalized = False
             solvent_bank.credit_failure = True
             # Change color to Red
+            solvent_bank.bank_f2.update_f2(solvent_bank)
             process_unwind_loans_insolvent_bank(schedule, bankrupt_liquidation, solvent_bank)
 
         else:
@@ -160,3 +168,4 @@ def main_evaluate_solvency(schedule, reserve_rates, bankrupt_liquidation, car):
             solvent_bank.calculate_reserve_ratio()
             solvent_bank.calculate_total_assets()
             solvent_bank.calculate_leverage_ratio()
+            solvent_bank.bank_f2.update_f2(solvent_bank)

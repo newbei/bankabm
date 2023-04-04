@@ -3,6 +3,7 @@ Bank Agent
 """
 
 from mesa import Agent
+from banksim.agent.bankf2 import BankF2
 
 
 class Bank(Agent):
@@ -73,6 +74,7 @@ class Bank(Agent):
         self.ib_interest_expense_4log = 0
         self.ib_net_interest_income_4log = 0
         self.ib_credit_loss_4log = 0
+        self.bank_f2 = BankF2(self.unique_id)
 
     def calculate_total_assets(self):
         self.total_assets = self.bank_reserves + self.bank_loans
