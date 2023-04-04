@@ -160,3 +160,5 @@ test/unit_tests/files/.pnp
 
 # results
 result.sqlite*
+banksim/result.sqlite*
+banksim/result.*.csv

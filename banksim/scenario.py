@@ -47,7 +47,7 @@ def main(rep_count=1):
         logger.info(f'repcount : {i}')
         model_params = {"init_db": False,
                         "write_db": True,
-                        "max_steps": 5,  # 240
+                        "max_steps": 240,  # 240
                         "initial_saver": 10000,
                         "initial_bank": 10,
                         "initial_loan": 20000,
@@ -66,7 +66,7 @@ def main(rep_count=1):
             itertools.product(lst_capital_req
                               , lst_reserve_ratio
                               , add_strategy
-                              , F2LoanIntervention(range(0, 2), step=4)()
+                              , F2LoanIntervention(range(0, 10), step=239)()
                               ))
 
         lst_model_params = list()
@@ -79,7 +79,7 @@ def main(rep_count=1):
                 if isinstance(intervention, InterventionInstance):
                     model_params[intervention.__class__.__name__] = intervention
             lst_model_params.append(model_params.copy())
-        with concurrent.futures.ProcessPoolExecutor(max_workers=1) as executor:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=10) as executor:
             model_finish_cnt = 0
             for res in executor.map(exec_banksim_model, lst_model_params):
                 if res:
