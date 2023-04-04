@@ -116,6 +116,7 @@ CREATE TABLE [AgtBank_F2]
 	[BankCapitalizedF2] INTEGER  NULL,		-- 1: TRUE, 0: False, bank_capitalized = None  # bank capitalized
 	[BankCreditFailureF2] INTEGER  NULL,	-- 1: TRUE, 0: False, credit_failure = None  # credit failure
 	[RiskWgtAmountDefaultedF2] REAL  NULL,
+	[BankLgdAmountF2] REAL NULL,
 	[CAR] REAL  NULL
 );
 

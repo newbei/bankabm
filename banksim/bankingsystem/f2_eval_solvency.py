@@ -24,9 +24,11 @@ def calculate_credit_loss_loan_book(schedule, solvent_bank):
     loans_with_bank_default = [x for x in loans_with_bank if not x.loan_solvent]
     # notice that deposits do not change when loans are defaulting
     solvent_bank.rwassets = solvent_bank.rwassets - sum([x.rwamount for x in loans_with_bank_default])
+    solvent_bank.bank_f2.rw_wgt_defaulted_loans_f2 = sum([x.rwamount for x in loans_with_bank_default])  # f2 update
     # Add provision to equity to obtain the total buffer against credit losses,
     # substract losses, and calculate the equity amount before new provisions
     solvent_bank.equity = solvent_bank.equity - sum([x.lgdamount for x in loans_with_bank_default])
+    solvent_bank.bank_f2.lgd_amount_f2 = sum([x.lgdamount for x in loans_with_bank_default])  # f2 update
     # Calculate the new required level of provisions and substract of equity
     # equity may be negative but do not set the bank to default yet until
     # net income is calculated
@@ -41,8 +43,6 @@ def calculate_credit_loss_loan_book(schedule, solvent_bank):
     solvent_bank.bank_provisions = solvent_bank.bank_new_provisions
     solvent_bank.equity = solvent_bank.equity - change_in_provisions
     solvent_bank.bank_reserves = solvent_bank.bank_reserves + sum([x.loan_recovery for x in loans_with_bank_default])
-    solvent_bank.bank_f2.rw_wgt_defaulted_loans_f2 = sum(
-        [x.loan_recovery for x in loans_with_bank_default])  # f2 update
     solvent_bank.bank_reserves = solvent_bank.bank_reserves - change_in_provisions
     solvent_bank.bank_loans = solvent_bank.bank_loans - sum([x.amount for x in loans_with_bank_default])
     solvent_bank.defaulted_loans = solvent_bank.defaulted_loans + sum([x.amount for x in loans_with_bank_default])

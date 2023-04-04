@@ -63,6 +63,7 @@ class BankF2(object):
         self.credit_failure_f2 = False
 
         self.rw_wgt_defaulted_loans_f2 = 0
+        self.lgd_amount_f2 = 0
         self.car = 0
 
     def get_all_variables(self):
@@ -94,6 +95,7 @@ class BankF2(object):
             self.bank_capitalized_f2,
             self.credit_failure_f2,
             self.rw_wgt_defaulted_loans_f2,
+            self.lgd_amount_f2,
             self.car
         ]
         return res
