@@ -32,7 +32,7 @@ DROP TABLE IF EXISTS [AgtIbLoan];
 *****************************************************************/
 CREATE TABLE [Simulation]
 (
-	[SimId] INTEGER NOT NULL,
+	[SimId] TEXT NOT NULL,
 	[Title] NVARCHAR(200) NOT NULL,
 	[SimDate] DATETIME NOT NULL,
 	[RandomState] INTEGER NOT NULL,
@@ -43,7 +43,7 @@ CREATE TABLE [Simulation]
 CREATE TABLE [AgtBank]
 (
 	[AgtBankId] INTEGER NOT NULL,
-	[SimId] INTEGER NOT NULL,	
+	[SimId] TEXT NOT NULL,
 	[StepCnt] INTEGER NOT NULL, 
 	[BankId] INTEGER NOT NULL,
 	[BankEquity] REAL NOT NULL, 	-- equity = None  # equity (capital) of the bank
@@ -86,7 +86,7 @@ CREATE TABLE [AgtBank]
 CREATE TABLE [AgtBank_F2]
 (
 	[AgtBankId] INTEGER NOT NULL,
-	[SimId] INTEGER NOT NULL,
+	[SimId] TEXT NOT NULL,
 	[StepCnt] INTEGER NOT NULL,
 	[BankId] INTEGER NOT NULL,
 	[BankEquityT0] REAL  NULL, 	-- equity = None  # equity (capital) of the bank
@@ -123,7 +123,7 @@ CREATE TABLE [AgtBank_F2]
 CREATE TABLE [AgtSaver]
 (
 	[AgtSaverId] INTEGER NOT NULL,
-	[SimId] INTEGER NOT NULL,
+	[SimId] TEXT NOT NULL,
 	[StepCnt] INTEGER NOT NULL,
 	[SaverId] INTEGER NOT NULL,
 	[SaverBalance] REAL, 				-- balance = None  # deposit balance with bank
@@ -144,7 +144,7 @@ CREATE TABLE [AgtSaver]
 CREATE TABLE [AgtLoan]
 (
 	[AgtLoanId] INTEGER NOT NULL,
-	[SimId] INTEGER NOT NULL,
+	[SimId] TEXT NOT NULL,
 	[StepCnt] INTEGER NOT NULL,
 	[LoanId] INTEGER NOT NULL,
 	[LoanProbDefault] REAL NOT NULL,-- pdef = None  # true probability of default
@@ -175,7 +175,7 @@ CREATE TABLE [AgtLoan]
 CREATE TABLE [AgtIbLoan]
 (
 	[AgtIbLoanId] INTEGER NOT NULL,
-	[SimId] INTEGER NOT NULL,
+	[SimId] TEXT NOT NULL,
 	[StepCnt] INTEGER NOT NULL,
 	[IbLoanId] INTEGER NOT NULL,
 	[IbLoanRate] REAL NOT NULL, 	-- ib_rate = None  # interbank loan rate

@@ -4,12 +4,17 @@ import os
 import sys
 import time
 
+MAX_STEP = 240
+MAX_WORKERS = 1
 p = '/mnt/nfsroot/hegang/code/ABM/CASES/bankabm'
 if os.path.exists(p):
     sys.path.append(p)
     print('sys.path.append', p)
+    MAX_STEP = 240
+    MAX_WORKERS = None
 else:
     print('not append')
+    MAX_STEP = 5
 
 import itertools
 import concurrent.futures
@@ -19,7 +24,9 @@ from banksim.model import BankSim
 from banksim.util.write_sqlitedb import init_database
 from banksim.agent.bank import Bank
 from banksim.intervention.f2loan import F2LoanIntervention
-from banksim.intervention.base import Intervention, InterventionInstance
+# from banksim.intervention.f7withdraw import F7WithdrawIntervention
+from banksim.intervention.f2deposit import F2DepositIntervention
+from banksim.intervention.base import InterventionInstance
 
 import random
 import numpy as np
@@ -36,7 +43,7 @@ def exec_banksim_model(model_params):
     start = time.time()
     model.run_model(step_count=model_params['max_steps'])
     end = time.time()
-    print('exec_banksim_model cost ', end - start, ' secs')
+    print(model.simid, 'exec_banksim_model cost ', end - start, ' secs')
     return True
 
 
@@ -44,10 +51,11 @@ def main(rep_count=1):
     init_database()
     for i in range(rep_count):
 
-        logger.info(f'repcount : {i}')
+        logger.info(f'repcount : {i} max_steps : {MAX_STEP}')
         model_params = {"init_db": False,
-                        "write_db": True,
-                        "max_steps": 240,  # 240
+                        "write_db": False,
+                        "write_file": True,
+                        "max_steps": MAX_STEP,  # 240
                         "initial_saver": 10000,
                         "initial_bank": 10,
                         "initial_loan": 20000,
@@ -66,7 +74,8 @@ def main(rep_count=1):
             itertools.product(lst_capital_req
                               , lst_reserve_ratio
                               , add_strategy
-                              , F2LoanIntervention(range(0, 10), step=239)()
+                              , F2LoanIntervention(range(0, 10), step=MAX_STEP - 1)()
+                              , F2DepositIntervention(range(0, 10), step=MAX_STEP - 1)()
                               ))
 
         lst_model_params = list()
@@ -79,13 +88,13 @@ def main(rep_count=1):
                 if isinstance(intervention, InterventionInstance):
                     model_params[intervention.__class__.__name__] = intervention
             lst_model_params.append(model_params.copy())
-        with concurrent.futures.ProcessPoolExecutor(max_workers=10) as executor:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:  # max_workers=10
             model_finish_cnt = 0
             for res in executor.map(exec_banksim_model, lst_model_params):
                 if res:
                     model_finish_cnt = model_finish_cnt + 1
-                    if model_finish_cnt % 10 == 0:
-                        logger.info('Number of completed scenario: %3d', model_finish_cnt)
+                    # if model_finish_cnt % 10 == 0:
+                    logger.info('Number of completed scenario: %3d', model_finish_cnt)
     logger.info('finished')
 
 

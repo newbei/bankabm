@@ -55,7 +55,7 @@ def insert_agtbank_table(cursor, simid, numstep, banks):
 
 
 def insert_agtbank_table_f2(cursor, simid, numstep, banks):
-    start = time.time()
+    # start = time.time()
     """
 
     :param cursor:
@@ -79,7 +79,7 @@ def insert_agtbank_table_f2(cursor, simid, numstep, banks):
         tmp_bank_f2[2] = numstep
     cursor.executemany(sql, tmp_bank_f2s)
 
-    print(time.time() - start, 's')
+    # print(time.time() - start, 's')
     return cursor.lastrowid
 
 

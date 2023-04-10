@@ -9,6 +9,7 @@ from banksim.agent.saver import Saver
 
 from banksim.util.intervetion_util import do_intervention
 from banksim.intervention.f2loan import F2LoanIntervention
+from banksim.intervention.f2deposit import F2DepositIntervention
 
 
 def calculate_credit_loss_loan_book(schedule, solvent_bank):
@@ -134,6 +135,7 @@ def process_unwind_loans_insolvent_bank(schedule, bankrupt_liquidation, solvent_
 
 def main_evaluate_solvency(schedule, reserve_rates, bankrupt_liquidation, car):
     for solvent_bank in [x for x in schedule.agents if isinstance(x, Bank) and x.bank_solvent]:
+        do_intervention(schedule, F2DepositIntervention, bank=solvent_bank)
         calculate_credit_loss_loan_book(schedule, solvent_bank)
         calculate_interest_income_loans(schedule, reserve_rates, solvent_bank)
         calculate_interest_expense_deposits(schedule, solvent_bank)

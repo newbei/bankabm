@@ -5,6 +5,8 @@ from banksim.agent.bank import Bank
 from banksim.agent.saver import Saver
 from banksim.agent.ibloan import Ibloan
 from banksim.bankingsystem.f2_eval_solvency import process_unwind_loans_insolvent_bank
+from banksim.util.intervetion_util import do_intervention
+from banksim.intervention.f7withdraw import F7WithdrawIntervention
 
 
 def process_deposit_withdrawal(schedule):
@@ -22,8 +24,10 @@ def process_deposit_withdrawal(schedule):
                 # TO DO: saver.saver_last_color = color
                 # TO DO: change color Red
                 solvent_bank.deposit_outflow = solvent_bank.deposit_outflow + saver.balance
-            # solvent_bank.deposit_outflow = sum([x.balance for x in self.schedule.agents if isinstance(x, Saver) and
-            #                                    x.pos == solvent_bank.pos and x.bank_id == 9999])
+
+        do_intervention(schedule, F7WithdrawIntervention, bank=solvent_bank)
+        # solvent_bank.deposit_outflow = sum([x.balance for x in self.schedule.agents if isinstance(x, Saver) and
+        #                                    x.pos == solvent_bank.pos and x.bank_id == 9999])
 
 
 def process_deposit_reassignment(schedule):
@@ -52,6 +56,7 @@ def process_deposit_flow_rebalancing(schedule):
         solvent_bank.calculate_reserve()
         solvent_bank.calculate_reserve_ratio()
         solvent_bank.calculate_total_assets()
+
 
 def process_access_interbank_market(schedule, car, min_reserves_ratio, bank):
     liq_banks = [x for x in schedule.agents if isinstance(x, Bank) and x.capital_ratio >= car and

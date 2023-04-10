@@ -36,3 +36,6 @@ class F2LoanInterventionInstance(InterventionInstance):
         for loan in np.random.choice(loans_with_bank, min(len(loans_with_bank), self.default_loans)):
             loan.loan_solvent = False
             loan.rwamount = loan.rweight * loan.amount
+
+    def id(self):
+        return f'f2l{self.default_loans}'

@@ -13,3 +13,8 @@ class InterventionInstance(object):
     def __init__(self):
         pass
 
+    def intervention(self):
+        pass
+
+    def id(self):
+        pass

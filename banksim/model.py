@@ -75,6 +75,9 @@ class BankSim(Model):
         self.is_write_db = (
             False if params.get("write_db") is None else params.get("write_db")
         )
+        self.is_write_file = (
+            False if params.get("write_file") is None else params.get("write_file")
+        )
         self.max_steps = params["max_steps"]
         self.initial_saver = params["initial_saver"]
         self.initial_loan = params["initial_loan"]
@@ -98,16 +101,50 @@ class BankSim(Model):
         self.schedule = RandomActivation(self)
         self.datacollector = DataCollector({"BankAsset": get_sum_totasset})
 
+        self.simid = int(datetime.now().strftime("%y%m%d%H%M%S%f")[:-3])
         for key, value in params.items():
             if isinstance(value, InterventionInstance):
                 setattr(self.schedule, value.__class__.__name__, value)
+                self.simid = f'{self.simid}{value.id()}'
 
         print(f"max step: {self.max_steps}")
         self.filewriter = FileWriter()
 
+    def persist(self):
+        # persitences
+        if self.is_write_file:
+            self.filewriter.insert_agtbank_table_f2(self.simid, self.schedule.steps,
+                                                    [x for x in self.schedule.agents if isinstance(x, Bank)])
+        if self.is_write_db:
+            # Insert agent variables of current step into SQLITEDB
+            # insert_agtsaver_table(self.db_cursor, self.simid, self.schedule.steps,
+            #                       [x for x in self.schedule.agents if isinstance(x, Saver)])
+            # insert_agtloan_table(self.db_cursor, self.simid, self.schedule.steps,
+            #                      [x for x in self.schedule.agents if isinstance(x, Loan)])
+            # # # It needs to log before the 2nd round effect begin because the function initializes
+            insert_agtbank_table(
+                self.db_cursor,
+                self.simid,
+                self.schedule.steps,
+                [x for x in self.schedule.agents if isinstance(x, Bank)],
+            )
+            # insert_agtbank_table_f2(
+            #     self.db_cursor,
+            #     self.simid,
+            #     self.schedule.steps,
+            #     [x for x in self.schedule.agents if isinstance(x, Bank)],
+            # )
+            #
+            # insert_agtibloan_table(self.db_cursor, self.simid, self.schedule.steps,
+            #                        [x for x in self.schedule.agents if isinstance(x, Ibloan)])
+            self.conn.commit()
+
     def step(self):
-        # self.car = self.random_car_list[self.schedule.steps]
+
+        self.car = self.random_car_list[self.schedule.steps]
         self.min_reserves_ratio = self.random_mrr_list[self.schedule.steps]
+
+
         if self.schedule.steps == 0:
 
             if self.is_init_db:
@@ -117,7 +154,7 @@ class BankSim(Model):
             if self.is_write_db:
                 self.conn = sqlite3.connect(self.sqlite_db)
                 self.db_cursor = self.conn.cursor()
-                self.simid = int(datetime.now().strftime("%y%m%d%H%M%S%f")[:-3])
+
                 title = "CAR {0:f}, Reserves Ratio {1:f}".format(
                     self.car, self.min_reserves_ratio
                 )
@@ -167,7 +204,7 @@ class BankSim(Model):
                         "loan_approved": False,
                         "loan_dumped": False,
                         "loan_liquidated": False,
-                        "pdf_upper": 0.1,
+                        "pdf_upper": 0.2,
                         "rcvry_rate": 0.4,
                         "firesale_upper": 0.1,
                     }
@@ -227,32 +264,7 @@ class BankSim(Model):
         )
         main_write_interbank_links(self.schedule, self.lst_ibloan)
 
-        if self.is_write_db:
-            self.filewriter.insert_agtbank_table_f2(self.simid, self.schedule.steps,
-                                                    [x for x in self.schedule.agents if isinstance(x, Bank)])
-            # # Insert agent variables of current step into SQLITEDB
-            # insert_agtsaver_table(self.db_cursor, self.simid, self.schedule.steps,
-            #                       [x for x in self.schedule.agents if isinstance(x, Saver)])
-            # insert_agtloan_table(self.db_cursor, self.simid, self.schedule.steps,
-            #                      [x for x in self.schedule.agents if isinstance(x, Loan)])
-            # # # It needs to log before the 2nd round effect begin because the function initializes
-            # insert_agtbank_table(
-            #     self.db_cursor,
-            #     self.simid,
-            #     self.schedule.steps,
-            #     [x for x in self.schedule.agents if isinstance(x, Bank)],
-            # )
-            # insert_agtbank_table_f2(
-            #     self.db_cursor,
-            #     self.simid,
-            #     self.schedule.steps,
-            #     [x for x in self.schedule.agents if isinstance(x, Bank)],
-            # )
-
-            # insert_agtibloan_table(self.db_cursor, self.simid, self.schedule.steps,
-            #                        [x for x in self.schedule.agents if isinstance(x, Ibloan)])
-            self.conn.commit()
-
+        self.persist()
         self.schedule.step()
         self.datacollector.collect(self)
 
