@@ -78,6 +78,8 @@ CREATE TABLE [AgtBank]
 	[BankDepositOptimize] INTEGER NOT NULL,
 	[BankOptimizedLoan] REAL,
 	[BankApprovedLoan] REAL,
+	[CAR] REAL,
+	[MRR] REAL,
 	CONSTRAINT [PK_AgtBank] PRIMARY KEY ([AgtBankId],[SimId]),
 	FOREIGN KEY ([SimId]) REFERENCES [Simulation] ([SimId])
 				ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -117,7 +119,8 @@ CREATE TABLE [AgtBank_F2]
 	[BankCreditFailureF2] INTEGER  NULL,	-- 1: TRUE, 0: False, credit_failure = None  # credit failure
 	[RiskWgtAmountDefaultedF2] REAL  NULL,
 	[BankLgdAmountF2] REAL NULL,
-	[CAR] REAL  NULL
+	[CAR] REAL  NULL,
+	[BankReserveF2_1] REAL  NULL	-- bank_reserves = None  # liquid bank_reserves
 );
 
 CREATE TABLE [AgtSaver]

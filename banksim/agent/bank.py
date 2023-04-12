@@ -74,6 +74,8 @@ class Bank(Agent):
         self.ib_interest_expense_4log = 0
         self.ib_net_interest_income_4log = 0
         self.ib_credit_loss_4log = 0
+        self.car = 0
+        self.mrr = 0
         self.bank_f2 = BankF2(self.unique_id)
 
     def calculate_total_assets(self):
@@ -467,5 +469,7 @@ class Bank(Agent):
             self.deposit_optimize,
             self.optimized_loans,
             self.approved_loans,
+            self.car,
+            self.mrr
         ]
         return res

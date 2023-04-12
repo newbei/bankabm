@@ -32,8 +32,8 @@ def insert_agtbank_table(cursor, simid, numstep, banks):
     BankInterestExpense,BankIbInterestIncome,BankIbInterestExpense,BankIbNetInterestIncome,BankIbCreditLoss,
     BankRiskWgtAsset,BankDividend,BankCumDividend,BankDepositOutflow,BankDepositInflow,BankNetDepositflow,
     BankDefaultedLoan,BankSolvent,BankCapitalized,BankCreditFailure,BankLiquidityFailure,BankStepDate,BankDepositOptimize,
-    BankOptimizedLoan,BankApprovedLoan) VALUES(
-    ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
+    BankOptimizedLoan,BankApprovedLoan,CAR,MRR) VALUES(
+    ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
     col_date = datetime.now(timezone.utc)
 
     tmp_banks = [bank.get_all_variables() for bank in banks]
@@ -68,8 +68,8 @@ def insert_agtbank_table_f2(cursor, simid, numstep, banks):
     BankProvisionT0, BankRiskWgtAssetT0, BankEquityF2, BankLoanF2, BankReserveF2, BankAssetF2, BankProvisionF2, 
     BankNetInterestIncomeF2, BankInterestIncomeF2, BankInterestExpenseF2, BankCapitalRatioF2, BankReservesRatioF2, 
     BankRiskWgtAssetF2, BankDefaultedLoanF2, BankSolventF2, BankCapitalizedF2, BankCreditFailureF2, RiskWgtAmountDefaultedF2,
-    BankLgdAmountF2, CAR)
-    VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);'''
+    BankLgdAmountF2, CAR,BankReserveF2_1)
+    VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);'''
     col_date = datetime.now(timezone.utc)
 
     tmp_bank_f2s = [bank.bank_f2.get_all_variables() for bank in banks]

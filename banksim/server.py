@@ -4,6 +4,7 @@ from mesa.visualization.UserParam import UserSettableParameter
 
 from banksim.model import BankSim
 
+
 def mesa_abba_network_portrayal(G):
     portrayal = dict()
     portrayal['nodes'] = [{'id': node_id,
@@ -35,7 +36,12 @@ model_params = {"write_db": UserSettableParameter("checkbox", 'Write DB', value=
                 "car": UserSettableParameter("number", "Minimum capital adequacy ratio", value=0.08),
                 "rfree": UserSettableParameter("number", "Risk Free Rate", value=0.01),
                 "min_reserves_ratio": UserSettableParameter("number", "Minimum Reserve Ratio", value=0.03),
-                "random_state": 3001
+                "random_state": 3001,
+                "car": 0.08,
+                "min_reserves_ratio": 0.04,
+                "random_state": 1,
+                "add_strategy": 0
+
                 }
 
 server = ModularServer(BankSim, [canvas_network, chart_element], "Banking system simulator", model_params)

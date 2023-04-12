@@ -45,6 +45,7 @@ def calculate_credit_loss_loan_book(schedule, solvent_bank):
     solvent_bank.equity = solvent_bank.equity - change_in_provisions
     solvent_bank.bank_reserves = solvent_bank.bank_reserves + sum([x.loan_recovery for x in loans_with_bank_default])
     solvent_bank.bank_reserves = solvent_bank.bank_reserves - change_in_provisions
+    solvent_bank.bank_f2.bank_reserves_f2_1 = solvent_bank.bank_reserves  # update bank_reserves_f2_1
     solvent_bank.bank_loans = solvent_bank.bank_loans - sum([x.amount for x in loans_with_bank_default])
     solvent_bank.defaulted_loans = solvent_bank.defaulted_loans + sum([x.amount for x in loans_with_bank_default])
     solvent_bank.calculate_total_assets()

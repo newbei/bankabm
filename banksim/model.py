@@ -128,12 +128,12 @@ class BankSim(Model):
                 self.schedule.steps,
                 [x for x in self.schedule.agents if isinstance(x, Bank)],
             )
-            # insert_agtbank_table_f2(
-            #     self.db_cursor,
-            #     self.simid,
-            #     self.schedule.steps,
-            #     [x for x in self.schedule.agents if isinstance(x, Bank)],
-            # )
+            insert_agtbank_table_f2(
+                self.db_cursor,
+                self.simid,
+                self.schedule.steps,
+                [x for x in self.schedule.agents if isinstance(x, Bank)],
+            )
             #
             # insert_agtibloan_table(self.db_cursor, self.simid, self.schedule.steps,
             #                        [x for x in self.schedule.agents if isinstance(x, Ibloan)])
