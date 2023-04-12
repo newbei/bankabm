@@ -21,7 +21,7 @@ class CARInterventionInstance(InterventionInstance):
 
     def intervention(self, schedule, **kwargs):
         random_car_list = kwargs['random_car_list']
-        random_car_list[self.step:] = [ round(i+self.car_add,3) for i in random_car_list[self.step:]]
+        random_car_list[self.step:] = [ round(i+self.car_add,4) for i in random_car_list[self.step:]]
 
     def id(self):
         return f'car{self.car_add}'
