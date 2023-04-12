@@ -43,6 +43,10 @@ from banksim.util.write_sqlitedb import (
 from banksim.intervention.base import InterventionInstance
 from banksim.util.file_util import FileWriter
 
+from banksim.util.intervetion_util import do_intervention
+from banksim.intervention.CAR import CARIntervention
+
+
 logger = get_logger("model")
 
 
@@ -92,6 +96,7 @@ class BankSim(Model):
         )
         self.car = params["car"]
         self.random_car_list = random_car_list(self.car, self.max_steps, 0)
+
         self.min_reserves_ratio = params["min_reserves_ratio"]
         self.random_mrr_list = random_mrr_list(self.min_reserves_ratio, self.max_steps, params['add_strategy'])
 
@@ -110,11 +115,15 @@ class BankSim(Model):
         print(f"max step: {self.max_steps}")
         self.filewriter = FileWriter()
 
+        do_intervention(self.schedule, CARIntervention, random_car_list=self.random_car_list)
+
     def persist(self):
         # persitences
         if self.is_write_file:
             self.filewriter.insert_agtbank_table_f2(self.simid, self.schedule.steps,
                                                     [x for x in self.schedule.agents if isinstance(x, Bank)])
+            self.filewriter.insert_agtbank_table(self.simid, self.schedule.steps,
+                                                 [x for x in self.schedule.agents if isinstance(x, Bank)])
         if self.is_write_db:
             # Insert agent variables of current step into SQLITEDB
             # insert_agtsaver_table(self.db_cursor, self.simid, self.schedule.steps,
@@ -143,7 +152,6 @@ class BankSim(Model):
 
         self.car = self.random_car_list[self.schedule.steps]
         self.min_reserves_ratio = self.random_mrr_list[self.schedule.steps]
-
 
         if self.schedule.steps == 0:
 
@@ -224,8 +232,7 @@ class BankSim(Model):
         if self.schedule.steps == self.max_steps:
             self.running = False
 
-        update_car(self.schedule, self.car)
-        reset_before_step(self.schedule, self.car)
+        reset_before_step(self.schedule, self.car, self.min_reserves_ratio)
 
         # evaluate solvency of banks after loans experience default
         main_evaluate_solvency(

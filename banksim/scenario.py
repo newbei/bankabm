@@ -14,7 +14,7 @@ if os.path.exists(p):
     MAX_WORKERS = None
 else:
     print('not append')
-    MAX_STEP = 240
+    MAX_STEP = 10
 
 import itertools
 import concurrent.futures
@@ -26,6 +26,7 @@ from banksim.agent.bank import Bank
 from banksim.intervention.f2loan import F2LoanIntervention
 # from banksim.intervention.f7withdraw import F7WithdrawIntervention
 from banksim.intervention.f2deposit import F2DepositIntervention
+from banksim.intervention.CAR import CARIntervention
 from banksim.intervention.base import InterventionInstance
 
 import random
@@ -53,8 +54,8 @@ def main(rep_count=1):
 
         logger.info(f'repcount : {i} max_steps : {MAX_STEP}')
         model_params = {"init_db": False,
-                        "write_db": True,
-                        "write_file": False,
+                        "write_db": False,
+                        "write_file": True,
                         "max_steps": MAX_STEP,  # 240
                         "initial_saver": 10000,
                         "initial_bank": 10,
@@ -74,8 +75,7 @@ def main(rep_count=1):
             itertools.product(lst_capital_req
                               , lst_reserve_ratio
                               , add_strategy
-                              , F2LoanIntervention(range(0, 1), step=MAX_STEP - 1)()
-                              , F2DepositIntervention(range(0, 1), step=MAX_STEP - 1)()
+                              , CARIntervention(np.arange(0,0.02,0.0025), step=MAX_STEP - 5)()
                               ))
 
         lst_model_params = list()
